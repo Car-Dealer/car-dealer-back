@@ -80,6 +80,20 @@ CREATE TABLE Search_Post_Client
     PRIMARY KEY(search_post_client_id)
 );
 
+CREATE TABLE testing
+(
+    price CHARACTER(20),
+    gear CHARACTER(20),
+    fuel CHARACTER(20),
+    id INTEGER NOT NULL,
+    year CHARACTER(10),
+    kilo CHARACTER(30),
+    description TEXT,
+    car CHARACTER(100),
+    PRIMARY KEY (id)
+);
+
+
 ALTER TABLE search_post_client
     ADD FOREIGN KEY ("Post_post_id")
     REFERENCES "post" (post_id)
