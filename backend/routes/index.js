@@ -3,7 +3,6 @@ const app = express();
 const pool = require("./db");
 app.use(express.json()); //=> req.body
 
-//ROUTES//
 // GET ALL CARS
 app.get("/car", async(req,res) =>{
  try{
