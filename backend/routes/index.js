@@ -27,11 +27,12 @@ app.get("/car/:id", async(req,res) => {
  }
 });
 
-//CREATE A CAR (ISSUE WILL BE SOLVED SOON)
-app.post("/car", async(req,res) => {
+//CREATE A CAR
+app.post("/car/:id", async(req,res) => {
+ const{id} = req.params;
  try{
-  const {price, gear, fuel, id, year, kilo, description, car} = req.params;
-  const newcar = await pool.query(`INSERT INTO testing (price, gear, fuel, id, year, kilo, description, car) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,[price, gear, fuel, id, year, kilo, description, car]);
+  const {price, gear, fuel, year, kilo, description, car} = req.body;
+  const newcar = await pool.query(`INSERT INTO testing (price, gear, fuel, year, kilo, description, car, id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,[price, gear, fuel, year, kilo, description, car, id]);
   console.log(req.body)
   res.json(newcar.rows[0]);
  }catch(err){
