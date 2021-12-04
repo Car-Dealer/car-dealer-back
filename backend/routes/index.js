@@ -39,6 +39,21 @@ app.post("/car", async(req,res) => {
  }
 });
 
+//UPDATE A CAR BY ID
+app.put("/car/:id", async (req,res) => {
+ try{
+  const{ id } = req.params;
+  const {price, gear, fuel, year, kilo, description, car} = req.body;
+
+  const updateCar = await pool.query(`UPDATE testing SET price = $1, gear = $2, fuel = $3, year = $4, kilo = $5, description = $6, car = $7 WHERE id = $8 `, [price, gear, fuel, year, kilo, description, car, id]
+  );
+  res.json(updateCar.rows[0]);
+  console.log("CAR IS UPDATED!");
+ } catch(err){
+console.log(err.message);
+  }
+ });
+
 //ADD AN ADMIN (Won't need this since we won't have time to develop admin functionalities)
 app.post("/admin", async(req,res) => {
  try{
