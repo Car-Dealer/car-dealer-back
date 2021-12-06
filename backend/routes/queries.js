@@ -1,11 +1,17 @@
 const Pool = require('pg').Pool
+const dotenv = require('dotenv').config()
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'test',
-  password: 'Medtech2020$',
-  port: 5432,
+  connectionString: process.env.HEROKU_DB_Link,
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
+
+const connect = async ()=>(
+  await pool.connect()
+  .then((m)=>console.log("db connected"))
+  .catch(e=>console.error(e))
+  )
 
 // GET ALL CARS
 const getCars = (request, response) => {
@@ -62,6 +68,7 @@ const deleteCar = (request, response) => {
 }
 
 module.exports = {
+  connect,
   getCars,
   getCarById,
   createCar,

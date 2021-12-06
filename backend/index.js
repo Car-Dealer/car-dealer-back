@@ -1,16 +1,67 @@
 const express = require("express");
 const app = express();
-const pool = require("./db");
+const Pool = require('pg').Pool
+const dotenv = require('dotenv').config()
+const cors = require('cors')
+app.use(cors())
+
+const pool = new Pool({
+  connectionString: process.env.HEROKU_DB_Link,
+  ssl: {
+    rejectUnauthorized: false
+  }
+})
 app.use(express.json()); //=> req.body
 
+const connect = async ()=>(
+  await pool.connect()
+  .then((m)=>console.log("db connected"))
+  .catch(e=>console.error(e))
+  )
+
+const filterDefault = {
+  make: '',
+  model: '',
+  city: '',
+  year:{
+      from: '',
+      to: ''
+  },
+  fuel: '',
+  price:{
+      from: '',
+      to:''
+  }}
+
+const port = process.env.PORT || 3001
+connect()
+
+
 // GET ALL CARS
-app.get("/car", async(req,res) =>{
- try{
-  const cars = await pool.query(`SELECT * from testing;`);
-  console.log(req.body)
+app.post("/car", async(req,res) =>{
+  const filter = req.body
+  console.log(filter)
+  let query = 'SELECT * from testing'
+  if (JSON.stringify(filter) !== JSON.stringify(filterDefault)){
+    query += " WHERE "
+    filter.make !== ""? query+=`make= '${filter.make}' ` : ""
+    filter.model !== ""? query+=` model= '${filter.model}' ` : ""
+    filter.city !== ""? query+=` city= '${filter.city}' ` : ""
+    filter.fuel !== ""? query+=` fuel= '${filter.fuel}' ` : ""
+    filter.year.from !== ""? query+=` year > ${filter.year.from} ` : ""
+    filter.year.to !== ""? query+=` year < ${filter.year.to} ` : ""
+    filter.price.from !== ""? query+=` price > ${filter.price.from} ` : ""
+    filter.price.to !== ""? query+=` price < ${filter.price.to} ` : ""
+  }
+  
+  console.log(query)
+  try{
+  const cars = await pool.query(query+";");
+  console.log(cars.rows)
   res.json(cars.rows);
  }catch(err){
   console.log(err.message);
+  res.send(err.message);
  }
 });
 
@@ -18,11 +69,12 @@ app.get("/car", async(req,res) =>{
 app.get("/car/:id", async(req,res) => {
  const {id} = req.params;
  try{
-  const carById = await pool.query(`SELECT * from testing WHERE id= $1`,[id]);
+  const carById = await Pool.query(`SELECT * from testing WHERE id= ${id}`);
   console.log(req.body)
   res.json(carById.rows[0]);
  }catch(err){
   console.log(err.message);
+  res.send(err).status(403);
  }
 });
 
@@ -65,6 +117,6 @@ app.post("/admin", async(req,res) => {
  }
 });
 
-app.listen(3000,() =>{
- console.log("server is listening on port 3000");
+app.listen(port,() =>{
+ console.log(`server is listening on port ${port}`);
 })
